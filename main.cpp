@@ -260,7 +260,12 @@ char* decrypt(string sjcl_json, string key) {
 }
 
 char* encrypt(char* plaintext, const string& key) {
-    int iv_len = 8;    //8? (see 3.1 at https://tools.ietf.org/html/rfc4309#page-4)
+    /*
+        int lol = 2;
+        if (ciphertext_len >= 1<<16) lol++;
+        if (ciphertext_len >= 1<<24) lol++;
+     */
+    int iv_len = 13;    //8? (see 3.1 at https://tools.ietf.org/html/rfc4309#page-4)
     int salt_len = 12;  //can I use a random number here?
     int iter = 1000;
     int key_size = 256;
@@ -342,12 +347,6 @@ char* encrypt(char* plaintext, const string& key) {
         string retrn = food.dump();
         ret = (char *) malloc(sizeof(char) * retrn.length());
         strcpy(ret, retrn.c_str());
-
-        unsigned char *new_plaintext = static_cast<unsigned char *>(malloc(sizeof(unsigned char *) * ciphertext_len));
-        int new_plaintext_len = decryptccm(ciphertext, ciphertext_len, additional, strlen((char *) additional),
-                                       tag, derived_key, iv, new_plaintext);
-        handleErrors(to_string(new_plaintext_len).c_str());
-        handleErrors(reinterpret_cast<const char *>(new_plaintext));
     }
 
     // Free up resources
