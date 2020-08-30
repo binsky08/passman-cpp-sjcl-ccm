@@ -177,8 +177,6 @@ char* wstring_to_char(wstring str) {
 using namespace WLF::Crypto;
 
 char* decrypt(string sjcl_json, string key) {
-    handleErrors("json to decode:");
-    handleErrors(sjcl_json.c_str());
     JSONValue *data = JSON::Parse(sjcl_json.c_str());
 
     if (data == NULL || ! data->IsObject()) {
@@ -210,9 +208,6 @@ char* decrypt(string sjcl_json, string key) {
     Datagram* cryptogram = BASE64::decode((unsigned char *) cyphertext, strlen(cyphertext));
     int cyphertext_data_length = cryptogram->length - tag_size;
 
-    handleErrors(to_string(cyphertext_data_length).c_str());
-    handleErrors(to_string(cryptogram->length).c_str());
-
     Datagram* salt = BASE64::decode((unsigned char *) salt_64, strlen(salt_64));
     Datagram* iv_raw = BASE64::decode((unsigned char *) iv_64, strlen(iv_64));
 //    Datagram* aadata = BASE64::decode((const unsigned char *) "", 0); // Not sure if this is required since we don't use adata
@@ -232,7 +227,7 @@ char* decrypt(string sjcl_json, string key) {
     // Decrypt the data
     unsigned char *tag = &cryptogram->data[cyphertext_data_length];
     int plaintext_len = decryptccm(cryptogram->data, cyphertext_data_length, (unsigned char *) adata, strlen(adata),
-                                   tag, (unsigned char *) key.c_str(), iv_raw->data, plaintext);
+                                   tag, derived_key, iv_raw->data, plaintext);
 
     if (0 < plaintext_len) {
         // Try to make strings strings instead of json encoded strings
@@ -253,13 +248,20 @@ char* decrypt(string sjcl_json, string key) {
     free(salt_64);
     free(cyphertext);
     free(data);
-    free(derived_key);
-//    free(food);
 
     return ret;
 }
 
-char* encrypt(char* plaintext, const string& key) {
+char* addQuotationmarksToChar(char* message){
+    char *newmessage = (char *) malloc(sizeof(char *) * (strlen(message) + 2));
+    strcpy(newmessage, "\"");
+    strcat(newmessage, message);
+    strcat(newmessage, "\"");
+    return newmessage;
+}
+
+char* encrypt(char* original_plaintext, const string& key) {
+    char * plaintext = addQuotationmarksToChar(original_plaintext);
     /*
         int lol = 2;
         if (ciphertext_len >= 1<<16) lol++;
@@ -305,7 +307,8 @@ char* encrypt(char* plaintext, const string& key) {
     // Ensure ciphertext ends up null terminated (do I need this?)
     for (int i = 0; i < (sizeof(unsigned char) * strlen(plaintext) * ciphertext_allocation_multiplicator); i++) ciphertext[i] = '\0';
 
-    int ciphertext_len = encryptccm(reinterpret_cast<unsigned char *>(plaintext), strlen(plaintext), additional, strlen ((char *)additional),
+    unsigned char *tmp_plaintext = reinterpret_cast<unsigned char *>(plaintext);
+    int ciphertext_len = encryptccm(tmp_plaintext, strlen(plaintext), additional, strlen ((char *)additional),
                                     derived_key, iv, iv_len, ciphertext, tag, ts);
     if (0 < ciphertext_len) {
         //char ciphertext_with_tag[ciphertext_len + ts];   // array to hold the result.
@@ -361,7 +364,7 @@ int main(void) {
     char *ciphertext = encrypt(plaintext, key);
     handleErrors(ciphertext);
 
-    //char *recreated_plaintext = decrypt(ciphertext, key);
-    //handleErrors(recreated_plaintext);
+    char *recreated_plaintext = decrypt(ciphertext, key);
+    handleErrors(recreated_plaintext);
     return 0;
 }
