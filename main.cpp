@@ -262,12 +262,13 @@ char* addQuotationmarksToChar(char* message){
 
 char* encrypt(char* original_plaintext, const string& key) {
     char * plaintext = addQuotationmarksToChar(original_plaintext);
-    /*
-        int lol = 2;
-        if (ciphertext_len >= 1<<16) lol++;
-        if (ciphertext_len >= 1<<24) lol++;
-     */
+    int plaintext_len = strlen(plaintext);
     int iv_len = 13;    //8? (see 3.1 at https://tools.ietf.org/html/rfc4309#page-4)
+
+    //strange iv_len calculation due to the decryptccm implementation
+    if (plaintext_len >= 1<<16) iv_len--;
+    if (plaintext_len >= 1<<24) iv_len--;
+
     int salt_len = 12;  //can I use a random number here?
     int iter = 1000;
     int key_size = 256;
@@ -278,7 +279,7 @@ char* encrypt(char* original_plaintext, const string& key) {
     int ts = tag_size / 8;  // Make it bytes
     unsigned char *ciphertext;
     unsigned char *derived_key;
-    unsigned char tag[ts];  // Make it bytes
+    unsigned char tag[ts];
     unsigned char *iv = nullptr;
     unsigned char *salt = nullptr;
     unsigned char *additional = (unsigned char *)"";
@@ -332,6 +333,7 @@ char* encrypt(char* original_plaintext, const string& key) {
 
         Datagram* iv_base64 = BASE64::encode(iv, iv_len);
         char *tmpiv64 = reinterpret_cast<char *>(iv_base64->data);
+
 
         nlohmann::json food;
 
