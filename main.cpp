@@ -361,12 +361,30 @@ char* encrypt(char* original_plaintext, const string& key) {
 }
 
 int main(void) {
-    string key = "mykey123456";
-    char *plaintext = (char *) "test123";
-    char *ciphertext = encrypt(plaintext, key);
-    handleErrors(ciphertext);
+    char *key = "tstasdf123456*";
+    char *plaintext = "test";
+    char *example_ciphertext = "eyJpdiI6IkIwdTZIV3pYNGVmbTJxaFhkcVJUMEEiLCJ2IjoxLCJpdGVyIjoxMDAwLCJrcyI6MjU2LCJ0cyI6NjQsIm1vZGUiOiJjY20iLCJhZGF0YSI6IiIsImNpcGhlciI6ImFlcyIsInNhbHQiOiJkdGswb1llZjdxVSIsImN0IjoiSDJGbGR4Vm9sbTdncmc0L1haL0RudTRtbnlVb25mS2hWbmxKQXdRSzVudXFna0NmaVF2OThHaEd1Y0NzSHQvOHdsSnowSzdacytpcUxwalJMN1ZwejNnck8zaytSNjRsOWZ4VW8rY1hwQ2xKSk01ZjkxOUkxV1hoQURVQ3dCTjdrZzNtSjFpTTBOL3crNlJxUTQ4Zy90QnlGOFhGN2tuMlFlV3pIN1d4amNITmxKdzFTa3ZlQS9sVTN0MmV4ejlBMTBaZ2hHbmRmZkU4azdYVDlWQjdOeEJqUUdnVENzMnVZaXVVcE1KYStsMThGWjF6UFFGWlZiRG5HTmRZNGlnNHpsNGtyV2lkQXY3Z2Yva1dpbjdXWUswIn0=";
 
-    char *recreated_plaintext = decrypt(ciphertext, key);
-    handleErrors(recreated_plaintext);
+    printf("\nExample 1: Encrypt and decrypt a string with a given key:\n\n");
+    printf("Key: %s\n", key);
+    printf("Plaintext: %s\n", plaintext);
+
+    char *ciphertext = encrypt(plaintext, key);
+    printf("Encrypted plaintext: %s\n", ciphertext);
+
+    std::string exampleDec1(reinterpret_cast<char*>(ciphertext));
+    char *decrypted_plaintext = decrypt(exampleDec1, key);
+    printf("Decrypted plaintext: %s\n", decrypted_plaintext);
+
+    printf("\n<=================================>\n");
+
+    printf("\nExample 2: Decrypt a base64 encoded 'custom values' string with a given key:\n\n");
+    printf("Encoded ciphertext: %s\n", example_ciphertext);
+
+    Datagram* cryptogram_example2 = BASE64::decode((unsigned char *) example_ciphertext, strlen(example_ciphertext));
+    std::string exampleDec2(reinterpret_cast<char*>(cryptogram_example2->data));
+    char *decrypted_ciphertext = decrypt(exampleDec2, key);
+    printf("Decrypted ciphertext: %s\n", decrypted_ciphertext);
+
     return 0;
 }
