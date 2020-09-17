@@ -1,3 +1,6 @@
 [submodule "libs/openssl"]
 	path = libs/openssl
 	url = https://github.com/openssl/openssl.git
+[submodule "libs/SimpleJSON"]
+	path = libs/SimpleJSON
+	url = https://github.com/MJPA/SimpleJSON.git
