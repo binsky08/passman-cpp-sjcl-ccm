@@ -1,9 +1,6 @@
-//custom execution command: g++ -o main libs/base64.cpp libs/json.hpp libs/openssl/build/x86_64/lib/libcrypto.a libs/openssl/build/x86_64/lib/libssl.a libs/SimpleJSON/src/JSON.cpp libs/SimpleJSON/src/JSONValue.cpp main.cpp -lcrypto -lssl && ./main
-
 #include <openssl/evp.h>
 #include <cstring>
 #include <string>
-#include <vector>
 #include <algorithm>
 #include "libs/json.hpp"
 #include "libs/base64.h"
