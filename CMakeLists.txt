@@ -2,6 +2,10 @@ cmake_minimum_required(VERSION 3.17)
 project(encrypt_ccm)
 set(CMAKE_CXX_STANDARD 14)
 
+add_compile_options(
+        -O3
+)
+
 add_library(
         base64-lib
         STATIC
