@@ -26,7 +26,7 @@ add_library(
 )
 set_target_properties(
         openssl-lib
-        PROPERTIES IMPORTED_LOCATION ${CMAKE_CURRENT_SOURCE_DIR}/libs/openssl/build/x86_64/lib/libssl.a
+        PROPERTIES IMPORTED_LOCATION ${CMAKE_CURRENT_SOURCE_DIR}/libs/openssl/libssl.a
 )
 
 add_library(
@@ -36,7 +36,7 @@ add_library(
 )
 set_target_properties(
         opensslcrypto-lib
-        PROPERTIES IMPORTED_LOCATION ${CMAKE_CURRENT_SOURCE_DIR}/libs/openssl/build/x86_64/lib/libcrypto.a
+        PROPERTIES IMPORTED_LOCATION ${CMAKE_CURRENT_SOURCE_DIR}/libs/openssl/libcrypto.a
 )
 
 target_link_libraries(
