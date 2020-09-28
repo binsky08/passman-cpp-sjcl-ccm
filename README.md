@@ -6,16 +6,16 @@ It is helpful to test and debug encryption stuff on your local computer instead 
 
 ## Install dependencies
 
-1. Clone the repo
-1. Setup the git submodules with `git submodule update --init --recursive`
-1. Make openssl (for your AMD64 machine):
+- Clone the repo
+- Setup the git submodules with `git submodule update --init --recursive`
+- Make openssl (for your AMD64 machine):
 ```bash
 cd libs/openssl
 ./Configure
 make
 cd -
 ```
-1. Make openssl (for your AMD64 machine):
+- Make SimpleJSON (for your AMD64 machine):
 ```bash
 cd libs/SimpleJSON
 make depend

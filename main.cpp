@@ -1,4 +1,5 @@
 #include <openssl/evp.h>
+#include <openssl/rand.h>
 #include <cstring>
 #include <string>
 #include <algorithm>
@@ -12,20 +13,6 @@ using namespace std;
 
 void handleErrors(const char *error) {
     printf("FUCK THIS SHIT GOT AN ERROR: %s\n", error);
-}
-
-string get_random_string(int n) {
-    const int MAX_SIZE = 62;
-
-    char letters[MAX_SIZE] = {'a', 'b', 'c', 'd', 'e', 'f', 'g', 'h', 'i', 'j', 'k', 'l', 'm', 'n', 'o', 'p', 'q',
-                              'r', 's', 't', 'u', 'v', 'w', 'x', 'y', 'z',
-                              'A', 'B', 'C', 'D', 'E', 'F', 'G', 'H', 'I', 'J', 'K', 'L', 'M', 'N',
-                              'O', 'P', 'Q', 'R', 'S', 'T', 'U', 'V', 'W', 'X', 'Y', 'Z',
-                              '0', '1', '2', '3', '4', '5', '6', '7', '8', '9'};
-    string ran = "";
-    for (int i = 0; i < n; i++)
-        ran = ran + letters[rand() % MAX_SIZE];
-    return ran;
 }
 
 int decryptccm(unsigned char *ciphertext, int ciphertext_len, unsigned char *aad,
@@ -272,24 +259,17 @@ char *encrypt(char *original_plaintext, const string &key) {
     unsigned char *ciphertext;
     unsigned char *derived_key;
     unsigned char tag[ts];
-    unsigned char *iv = nullptr;
-    unsigned char *salt = nullptr;
+    unsigned char *iv;
+    unsigned char *salt;
     unsigned char *additional = (unsigned char *) "";
     char *ret = NULL;
 
-    srand(time(NULL));
-
-    //iv = (unsigned char *) get_random_string(iv_len).c_str();
-    std::string tmpiv = get_random_string(iv_len);
-    iv = (unsigned char *) tmpiv.c_str();
-    iv_len = tmpiv.length();
-
-    //salt = (unsigned char *) get_random_string(salt_len).c_str();
-    std::string tmpsalt = get_random_string(salt_len);
-    salt = (unsigned char *) tmpsalt.c_str();
-    salt_len = tmpsalt.length();
-
+    iv = (unsigned char *) malloc(sizeof(unsigned char) * iv_len);
+    salt = (unsigned char *) malloc(sizeof(unsigned char) * salt_len);
     derived_key = (unsigned char *) malloc(sizeof(unsigned char) * ks);
+
+    RAND_bytes(iv, iv_len);
+    RAND_bytes(salt, salt_len);
 
     // PBKDF2 Key derivation with SHA256 as SJCL does by default
     PKCS5_PBKDF2_HMAC(key.c_str(), key.length(), salt, salt_len, iter, EVP_sha256(), ks, derived_key);
@@ -354,7 +334,7 @@ char *encrypt(char *original_plaintext, const string &key) {
 int main(void) {
     char *key = "tstasdf123456*";
     char *plaintext = "test";
-    char *example_ciphertext = "eyJpdiI6IkIwdTZIV3pYNGVmbTJxaFhkcVJUMEEiLCJ2IjoxLCJpdGVyIjoxMDAwLCJrcyI6MjU2LCJ0cyI6NjQsIm1vZGUiOiJjY20iLCJhZGF0YSI6IiIsImNpcGhlciI6ImFlcyIsInNhbHQiOiJkdGswb1llZjdxVSIsImN0IjoiSDJGbGR4Vm9sbTdncmc0L1haL0RudTRtbnlVb25mS2hWbmxKQXdRSzVudXFna0NmaVF2OThHaEd1Y0NzSHQvOHdsSnowSzdacytpcUxwalJMN1ZwejNnck8zaytSNjRsOWZ4VW8rY1hwQ2xKSk01ZjkxOUkxV1hoQURVQ3dCTjdrZzNtSjFpTTBOL3crNlJxUTQ4Zy90QnlGOFhGN2tuMlFlV3pIN1d4amNITmxKdzFTa3ZlQS9sVTN0MmV4ejlBMTBaZ2hHbmRmZkU4azdYVDlWQjdOeEJqUUdnVENzMnVZaXVVcE1KYStsMThGWjF6UFFGWlZiRG5HTmRZNGlnNHpsNGtyV2lkQXY3Z2Yva1dpbjdXWUswIn0=";
+    char *example_ciphertext = "eyJhZGF0YSI6IiIsImNpcGhlciI6ImFlcyIsImN0IjoibzVPRFAyQlJHOTZFL0ZmdEdnPT0iLCJpdGVyIjoxMDAwLCJpdiI6Ik9VMWhjVzE2WVZSMVltRm1SZz09Iiwia3MiOjI1NiwibW9kZSI6ImNjbSIsInNhbHQiOiJOakZKWVVwdWVHY3pNVk5hIiwidHMiOjY0LCJ2IjoxfQ==";
 
     printf("\nExample 1: Encrypt and decrypt a string with a given key:\n\n");
     printf("Key: %s\n", key);
