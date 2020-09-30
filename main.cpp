@@ -2,7 +2,7 @@
 #include <openssl/rand.h>
 #include <cstring>
 #include <string>
-#include <algorithm>
+#include <random>
 #include "libs/json.hpp"
 #include "libs/base64.h"
 #include "libs/SimpleJSON/src/JSON.h"
@@ -239,6 +239,11 @@ char *addQuotationmarksToChar(char *message) {
     return newmessage;
 }
 
+int getInsecureRandomNumber(int min, int max) {
+    srand(time(NULL));
+    return (rand() % (max - min + 1)) + min;
+}
+
 char *encrypt(char *original_plaintext, const string &key) {
     char *plaintext = addQuotationmarksToChar(original_plaintext);
     int plaintext_len = strlen(plaintext);
@@ -248,7 +253,7 @@ char *encrypt(char *original_plaintext, const string &key) {
     if (plaintext_len >= 1 << 16) iv_len--;
     if (plaintext_len >= 1 << 24) iv_len--;
 
-    int salt_len = 12;  //can I use a random number here?
+    int salt_len = getInsecureRandomNumber(12, 24);
     int iter = 1000;
     int key_size = 256;
     int tag_size = 64;
